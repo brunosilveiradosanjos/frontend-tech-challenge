@@ -1,9 +1,10 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Home } from "./Home.tsx";
-import { Profile } from "./Profile.tsx";
+import "./index.scss";
+import { Home } from "./pages/Home.tsx";
+import { Trainer } from "./pages/Trainer.tsx";
+import { Arena } from "./pages/Arena.tsx";
+import { Nav } from "./components/generic/Nav.tsx";
 
 const router = createBrowserRouter([
   {
@@ -11,13 +12,18 @@ const router = createBrowserRouter([
     element: <Home />,
   },
   {
-    path: "/profile",
-    element: <Profile />,
+    path: "/trainer",
+    element: <Trainer />,
+  },
+  {
+    path: "/arena",
+    element: <Arena />,
   },
 ]);
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+  <>
+    <Nav />
     <RouterProvider router={router} />
-  </StrictMode>
+  </>
 );
