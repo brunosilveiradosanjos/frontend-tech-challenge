@@ -1,5 +1,3 @@
-// src/services/LocalStorage.service.tsx
-
 import { z } from 'zod';
 import { TrainerResponseSchema } from '../assets/schemas/trainer.schema';
 
@@ -8,18 +6,34 @@ type Trainer = z.infer<typeof TrainerResponseSchema>['results'][number];
 const STORAGE_KEY = 'selectedTrainers';
 
 export const LocalStorageService = {
+    // Retrieve trainers from local storage, ensuring no more than 2 trainers
     getSelectedTrainers: (): Trainer[] => {
         const storedTrainers = localStorage.getItem(STORAGE_KEY);
-        return storedTrainers ? JSON.parse(storedTrainers) : [];
+        const parsedTrainers = storedTrainers ? JSON.parse(storedTrainers) : [];
+        // Enforce a maximum of 2 trainers
+        const validTrainers = parsedTrainers.slice(0, 2);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(validTrainers));
+        return validTrainers;
     },
 
+    // Add a trainer, replacing the second one if necessary
     addTrainer: (trainer: Trainer): Trainer[] => {
         const selectedTrainers = LocalStorageService.getSelectedTrainers();
-        const updatedTrainers = [...selectedTrainers, trainer];
+
+        let updatedTrainers;
+        if (selectedTrainers.length < 2) {
+            // Add trainer if less than 2 trainers are selected
+            updatedTrainers = [...selectedTrainers, trainer];
+        } else {
+            // Replace the second trainer if 2 trainers are already selected
+            updatedTrainers = [selectedTrainers[0], trainer];
+        }
+
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTrainers));
         return updatedTrainers;
     },
 
+    // Remove a trainer by ID
     removeTrainer: (trainerId: number): Trainer[] => {
         const selectedTrainers = LocalStorageService.getSelectedTrainers();
         const updatedTrainers = selectedTrainers.filter((t) => t.id !== trainerId);
@@ -27,12 +41,17 @@ export const LocalStorageService = {
         return updatedTrainers;
     },
 
+    // Toggle trainer selection (add or remove)
     toggleTrainerSelection: (trainer: Trainer): Trainer[] => {
         const selectedTrainers = LocalStorageService.getSelectedTrainers();
         const isSelected = selectedTrainers.some((t) => t.id === trainer.id);
 
-        return isSelected
-            ? LocalStorageService.removeTrainer(trainer.id)
-            : LocalStorageService.addTrainer(trainer);
+        if (isSelected) {
+            // Remove trainer if already selected
+            return LocalStorageService.removeTrainer(trainer.id);
+        } else {
+            // Add trainer, enforcing the 2-trainer limit
+            return LocalStorageService.addTrainer(trainer);
+        }
     }
 };

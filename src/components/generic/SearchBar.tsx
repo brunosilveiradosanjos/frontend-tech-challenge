@@ -1,4 +1,3 @@
-// SearchBar.tsx
 import React, { useState } from 'react';
 
 interface SearchBarProps {
@@ -19,6 +18,11 @@ export function SearchBar({ query, onSearch, onClearSearch }: SearchBarProps) {
         setSearchInput(event.target.value);
     };
 
+    const handleClear = () => {
+        setSearchInput(''); // Clear the local state
+        onClearSearch(); // Call the parent's onClearSearch function
+    };
+
     return (
         <form onSubmit={handleSubmit} className="flex flex-row space-x-2">
             <input
@@ -29,8 +33,12 @@ export function SearchBar({ query, onSearch, onClearSearch }: SearchBarProps) {
                 placeholder="Search Trainers"
                 className="p-2 border rounded"
             />
-            <button type="submit" className="w-20 p-2 bg-blue-500 text-white rounded">Search</button>
-            <button type="button" onClick={onClearSearch} className="w-20 p-2 bg-red-500 text-white rounded">Clear</button>
+            <button type="submit" className="w-20 p-2 bg-blue-500 text-white rounded">
+                Search
+            </button>
+            <button type="button" onClick={handleClear} className="w-20 p-2 bg-red-500 text-white rounded">
+                Clear
+            </button>
         </form>
     );
 }
