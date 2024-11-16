@@ -6,6 +6,7 @@ import { TrainerResponseSchema } from '../assets/schemas/trainer.schema';
 import { TrainerSummary } from '../components/trainer/TrainerSummary';
 import { SearchBar } from '../components/generic/SearchBar';
 import { Pagination } from '../components/generic/Pagination';
+import { TrainerSelected } from '../components/trainer/TrainerSelected';
 
 type TrainerResponse = z.infer<typeof TrainerResponseSchema>;
 type Trainer = z.infer<typeof TrainerResponseSchema>['results'][number];
@@ -69,6 +70,7 @@ export function Trainer() {
         <div className='page flex flex-col items-center justify-center space-y-4'>
             <h1 className="text-3xl font-bold">Rick and Morty Trainers</h1>
             <SearchBar query={query} onSearch={handleSearch} onClearSearch={handleClearSearch} />
+            <TrainerSelected selectedTrainers={selectedTrainers} />
             {
                 isLoading ? (
                     <div className='page h-full w-full flex justify-center items-center'>Loading...</div>
