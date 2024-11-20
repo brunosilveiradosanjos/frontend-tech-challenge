@@ -3,12 +3,12 @@ import { z } from 'zod';
 import { fetchTrainers } from '../services/Trainer.service';
 import { LocalStorageService } from '../services/LocalStorage.service';
 import { TrainerResponseSchema } from '../assets/schemas/trainer.schema';
-import { TrainerSummary } from '../components/trainer/TrainerSummary';
 import { SearchBar } from '../components/generic/SearchBar';
 import { Pagination } from '../components/generic/Pagination';
-import { TrainerSelected } from '../components/trainer/TrainerSelected';
 import { ModalProvider } from '../components/generic/ModalContext';
 import { Modal } from '../components/generic/Modal';
+import { TrainersSelectedToBattle } from '../components/trainer/TrainersSelectedToBattle';
+import { TrainerCard } from '../components/trainer/TrainerCard';
 
 type TrainerResponse = z.infer<typeof TrainerResponseSchema>;
 type Trainer = z.infer<typeof TrainerResponseSchema>['results'][number];
@@ -69,10 +69,10 @@ export function Trainer() {
     };
 
     return (
-        <div className='page flex flex-col items-center justify-center space-y-4'>
+        <div className='page'>
             <h1 className="text-3xl font-bold">Rick and Morty Trainers</h1>
             <SearchBar query={query} onSearch={handleSearch} onClearSearch={handleClearSearch} />
-            <TrainerSelected selectedTrainers={selectedTrainers} />
+            <TrainersSelectedToBattle selectedTrainers={selectedTrainers} />
             {
                 isLoading ? (
                     <div className='page h-full w-full flex justify-center items-center'>Loading...</div>
@@ -82,9 +82,9 @@ export function Trainer() {
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                             {trainers.map((trainer) => (
-                                <ModalProvider key={trainer.id * 2}>
-                                    <TrainerSummary key={trainer.id} trainer={trainer} selectedTrainers={selectedTrainers} onToggleTrainer={handleToggleTrainer} />
-                                    <Modal key={trainer.id * 3} />
+                                <ModalProvider key={trainer.id * 22}>
+                                    <TrainerCard key={trainer.id} trainer={trainer} selectedTrainers={selectedTrainers} onToggleTrainer={handleToggleTrainer} />
+                                    <Modal key={trainer.id * 33} />
                                 </ModalProvider>
                             ))}
                         </div>

@@ -4,19 +4,25 @@ import { useModal } from '../generic/ModalContext';
 
 type Trainer = z.infer<typeof TrainerResponseSchema>['results'][number];
 
-interface TrainerSummaryProps {
+interface TrainerCardProps {
     trainer: Trainer;
     selectedTrainers: Trainer[];
-    onToggleTrainer: (trainer: Trainer) => void;
+    onToggleTrainer?: (trainer: Trainer) => void;
 }
 
-export function TrainerSummary({ trainer, selectedTrainers, onToggleTrainer }: TrainerSummaryProps) {
+export function TrainerCard({ trainer, selectedTrainers, onToggleTrainer }: TrainerCardProps) {
     const { openModal } = useModal();
     const isSelected = selectedTrainers.some((t) => t.id === trainer.id);
-    const isAddDisabled = !isSelected && selectedTrainers.length >= 2;
+    const isAddDisabled = !onToggleTrainer
 
     const handleImageClick = () => {
         openModal(trainer.id);
+    }
+
+    const handleAddTrainer = () => {
+        if (onToggleTrainer) {
+            onToggleTrainer(trainer);
+        }
     }
 
     return (
@@ -34,9 +40,9 @@ export function TrainerSummary({ trainer, selectedTrainers, onToggleTrainer }: T
                         </p>
                     )}
                     <button
-                        onClick={() => onToggleTrainer(trainer)}
+                        onClick={handleAddTrainer}
                         disabled={isAddDisabled}
-                        className={`w-full py-2 text-lg cursor-pointer ${isSelected ? 'bg-red-500' : isAddDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'} text-white`}>
+                        className={`w-full py-2 text-lg ${isSelected && !isAddDisabled ? 'bg-red-500 cursor-pointer' : isAddDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'} text-white`}>
                         {isSelected ? 'Remove' : 'Add'}
                     </button>
                 </div>

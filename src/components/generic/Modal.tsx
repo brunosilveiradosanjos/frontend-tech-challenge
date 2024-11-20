@@ -1,6 +1,6 @@
 import React from 'react';
 import { useModal } from './ModalContext';
-import { TrainerDetailed } from '../trainer/TrainerDetailed';
+import { PokemonDetailed } from '../trainer/PokemonDetailed';
 
 export const Modal: React.FC = () => {
     const { isOpen, closeModal, id } = useModal();
@@ -13,7 +13,7 @@ export const Modal: React.FC = () => {
                 <button onClick={closeModal} className="absolute top-0 right-0 w-8 h-8 bg-red-500 text-white rounded">
                     X
                 </button>
-                <TrainerDetailed id={id!} />
+                <PokemonDetailed id={id!} />
             </div>
         </div>
     );

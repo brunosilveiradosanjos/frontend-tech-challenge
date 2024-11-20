@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Pokemon, PokemonService } from "../../services/Pokemon.service";
 
-interface TrainerDetailedProps {
+interface PokemonDetailedProps {
     id: number;
 }
 
-export function TrainerDetailed({ id }: TrainerDetailedProps) {
+export function PokemonDetailed({ id }: PokemonDetailedProps) {
     const [pokemon, setPokemon] = useState<Pokemon | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
