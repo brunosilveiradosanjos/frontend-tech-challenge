@@ -81,7 +81,19 @@ export const PokemonSchema = z.object({
         front_female: z.string().url().nullable(),
         front_shiny: z.string().url().nullable(),
         front_shiny_female: z.string().url().nullable(),
-        other: z.record(z.unknown()), // You can expand this if needed
+        // other: z.record(z.unknown()), // You can expand this if needed
+        other: z.object({
+            showdown: z.object({
+                back_default: z.string().url().nullable(),
+                back_female: z.string().url().nullable(),
+                back_shiny: z.string().url().nullable(),
+                back_shiny_female: z.string().url().nullable(),
+                front_default: z.string().url().nullable(),
+                front_female: z.string().url().nullable(),
+                front_shiny: z.string().url().nullable(),
+                front_shiny_female: z.string().url().nullable(),
+            })
+        }), // You can expand this if needed
         versions: z.record(z.unknown()), // You can expand this if needed
     }),
     stats: z.array(StatSchema),
