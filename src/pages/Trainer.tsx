@@ -7,6 +7,8 @@ import { TrainerSummary } from '../components/trainer/TrainerSummary';
 import { SearchBar } from '../components/generic/SearchBar';
 import { Pagination } from '../components/generic/Pagination';
 import { TrainerSelected } from '../components/trainer/TrainerSelected';
+import { ModalProvider } from '../components/generic/ModalContext';
+import { Modal } from '../components/generic/Modal';
 
 type TrainerResponse = z.infer<typeof TrainerResponseSchema>;
 type Trainer = z.infer<typeof TrainerResponseSchema>['results'][number];
@@ -80,7 +82,10 @@ export function Trainer() {
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                             {trainers.map((trainer) => (
-                                <TrainerSummary key={trainer.id} trainer={trainer} selectedTrainers={selectedTrainers} onToggleTrainer={handleToggleTrainer} />
+                                <ModalProvider key={trainer.id * 2}>
+                                    <TrainerSummary key={trainer.id} trainer={trainer} selectedTrainers={selectedTrainers} onToggleTrainer={handleToggleTrainer} />
+                                    <Modal key={trainer.id * 3} />
+                                </ModalProvider>
                             ))}
                         </div>
                     )}

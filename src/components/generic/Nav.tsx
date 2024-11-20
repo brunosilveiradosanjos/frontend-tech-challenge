@@ -4,8 +4,8 @@ export function Nav() {
             <h1 className="text-2xl">Nav</h1>
             <div className="flex space-x-2">
                 <button>Home</button>
-                <button>Trainer</button>
-                <button>Arena</button>
+                <button >Trainer</button>
+                <button >Arena</button>
             </div>
         </nav>
     );
