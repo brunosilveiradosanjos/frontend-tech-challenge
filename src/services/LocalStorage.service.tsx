@@ -1,13 +1,10 @@
-import { z } from 'zod';
-import { TrainerResponseSchema } from '../assets/schemas/trainer.schema';
-
-type Trainer = z.infer<typeof TrainerResponseSchema>['results'][number];
+import { TrainerWithParty } from "../assets/schemas/trainerWithParty.schema";
 
 const STORAGE_KEY = 'selectedTrainers';
 
 export const LocalStorageService = {
     // Retrieve trainers from local storage, ensuring no more than 2 trainers
-    getSelectedTrainers: (): Trainer[] => {
+    getSelectedTrainers: (): TrainerWithParty[] => {
         const storedTrainers = localStorage.getItem(STORAGE_KEY);
         const parsedTrainers = storedTrainers ? JSON.parse(storedTrainers) : [];
         // Enforce a maximum of 2 trainers
@@ -17,7 +14,7 @@ export const LocalStorageService = {
     },
 
     // Add a trainer, replacing the second one if necessary
-    addTrainer: (trainer: Trainer): Trainer[] => {
+    addTrainer: (trainer: TrainerWithParty): TrainerWithParty[] => {
         const selectedTrainers = LocalStorageService.getSelectedTrainers();
 
         let updatedTrainers;
@@ -34,7 +31,7 @@ export const LocalStorageService = {
     },
 
     // Remove a trainer by ID
-    removeTrainer: (trainerId: number): Trainer[] => {
+    removeTrainer: (trainerId: number): TrainerWithParty[] => {
         const selectedTrainers = LocalStorageService.getSelectedTrainers();
         const updatedTrainers = selectedTrainers.filter((t) => t.id !== trainerId);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTrainers));
@@ -42,7 +39,7 @@ export const LocalStorageService = {
     },
 
     // Toggle trainer selection (add or remove)
-    toggleTrainerSelection: (trainer: Trainer): Trainer[] => {
+    toggleTrainerSelection: (trainer: TrainerWithParty): TrainerWithParty[] => {
         const selectedTrainers = LocalStorageService.getSelectedTrainers();
         const isSelected = selectedTrainers.some((t) => t.id === trainer.id);
 

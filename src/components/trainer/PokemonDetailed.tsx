@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Pokemon, PokemonService } from "../../services/Pokemon.service";
+import { LocalStorageService } from "../../services/LocalStorage.service";
 
 interface PokemonDetailedProps {
     id: number;
@@ -12,10 +13,24 @@ export function PokemonDetailed({ id }: PokemonDetailedProps) {
 
     useEffect(() => {
         const fetchPokemon = async () => {
+            setLoading(true);
             try {
-                setLoading(true);
-                const data = await PokemonService.getPokemonById(id);
-                setPokemon(data);
+                // Check if the Pokémon exists in local storage
+                const trainers = LocalStorageService.getSelectedTrainers();
+                const pokemonFromStorage = trainers
+                    .flatMap((trainer) => trainer.party)
+                    .find((p) => p.id === id);
+
+                if (pokemonFromStorage) {
+                    // Use the Pokémon from local storage
+                    setPokemon(pokemonFromStorage);
+                    console.log("Pokemon found in local storage:", pokemonFromStorage);
+                } else {
+                    // Fetch the Pokémon from the API
+                    const data = await PokemonService.getPokemonById(id);
+                    console.log("Fetched Pokémon from API:", data);
+                    setPokemon(data);
+                }
                 setError(null);
             } catch (err) {
                 setError(err instanceof Error ? err.message : "An unknown error occurred");
@@ -30,7 +45,7 @@ export function PokemonDetailed({ id }: PokemonDetailedProps) {
 
     if (loading) return <div className="text-center p-4">Loading...</div>;
     if (error) return <div className="text-center p-4 text-red-500">Error: {error}</div>;
-    if (!pokemon) return <div className="text-center p-4">No Pokemon data found</div>;
+    if (!pokemon) return <div className="text-center p-4">No Pokémon data found</div>;
 
     return (
         <div className="bg-white shadow-lg rounded-lg overflow-hidden max-w-md mx-auto">

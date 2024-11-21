@@ -1,13 +1,10 @@
-import { z } from 'zod';
-import { TrainerResponseSchema } from '../../assets/schemas/trainer.schema';
+import { TrainerWithParty } from '../../assets/schemas/trainerWithParty.schema';
 import { useModal } from '../generic/ModalContext';
 
-type Trainer = z.infer<typeof TrainerResponseSchema>['results'][number];
-
 interface TrainerCardProps {
-    trainer: Trainer;
-    selectedTrainers: Trainer[];
-    onToggleTrainer?: (trainer: Trainer) => void;
+    trainer: TrainerWithParty;
+    selectedTrainers: TrainerWithParty[];
+    onToggleTrainer?: (trainer: TrainerWithParty) => void;
 }
 
 export function TrainerCard({ trainer, selectedTrainers, onToggleTrainer }: TrainerCardProps) {
@@ -15,7 +12,7 @@ export function TrainerCard({ trainer, selectedTrainers, onToggleTrainer }: Trai
     const isSelected = selectedTrainers.some((t) => t.id === trainer.id);
     const isAddDisabled = !onToggleTrainer
 
-    const handleImageClick = () => {
+    const handleFavoritePokemonClick = () => {
         openModal(trainer.id);
     }
 
@@ -33,7 +30,7 @@ export function TrainerCard({ trainer, selectedTrainers, onToggleTrainer }: Trai
                     <h2 className="text-xl font-semibold mt-2">{trainer.name}</h2>
                     <p className="text-gray-500 text-lg">{trainer.status}</p>
                     <p>{trainer.species}</p>
-                    <button onClick={handleImageClick}>Favorite Pokemon</button>
+                    <button onClick={handleFavoritePokemonClick}>Favorite Pokemon</button>
                     {selectedTrainers.length >= 2 && !isSelected && (
                         <p className="text-red-500 text-sm mt-2">
                             Maximum of 2 trainers selected.
