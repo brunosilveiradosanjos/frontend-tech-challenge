@@ -113,7 +113,7 @@ export function BattleAnalysis() {
                                 ))}
                             </div>
                             <div className="space-y-2">
-                                <h4 className="text-md font-bold mb-2">{battleResult.scores.trainer1.name}'s Pokemon</h4>
+                                <h4 className="text-md font-bold mb-2">{battleResult.scores.trainer2.name}'s Pokemon</h4>
                                 {battleResult.pokemonResults.trainer2.map((pokemon, index) => (
                                     <div key={index} className="flex justify-between items-center bg-gray-50 p-2 rounded">
                                         <span>{pokemon.name}</span>

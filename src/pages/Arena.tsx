@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LocalStorageService } from "../services/LocalStorage.service";
 import { TrainerCard } from "../components/trainer/TrainerCard";
@@ -12,21 +12,43 @@ import { BattleAnalysis } from "../components/arena/BattleAnalysis";
 export function Arena() {
     const [selectedTrainers, setSelectedTrainers] = useState<TrainerWithParty[]>([])
     const [currentBattleStatus, setCurrentBattleStatus] = useState<BattleStatus>(BattleStatus.selectTrainers)
-    
+    const [battleStarted, setBattleStarted] = useState(false);
+    const [battleFinished, setBattleFinished] = useState(false);
     const navigate = useNavigate();
+    const bottomRef = useRef<HTMLDivElement>(null);
+    const scrollToBottom = useCallback(() => {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, []);
 
     useEffect(() => {
-        // Fetch selected trainers from local storage
         setSelectedTrainers(LocalStorageService.getSelectedTrainers())
     }, []);
 
+    useEffect(() => {
+        if (battleStarted && currentBattleStatus < BattleStatus.battleAnalise) {
+            const timer = setTimeout(() => {
+                setCurrentBattleStatus((prevStatus) => prevStatus + 1);
+            }, 1000);
+
+            return () => clearTimeout(timer);
+        }
+        if (currentBattleStatus === BattleStatus.battleAnalise) {
+            setBattleStarted(false);
+            setBattleFinished(true);
+        }
+        // Use setTimeout to scroll after the new content has been rendered
+        setTimeout(scrollToBottom, 100);
+    }, [battleStarted, currentBattleStatus, scrollToBottom]);
+
     const handleNextStage = () => {
-        setCurrentBattleStatus((prevStatus) =>
-            prevStatus < BattleStatus.battleAnalise ? prevStatus + 1 : prevStatus
-        );
+        if (battleFinished) {
+            window.location.reload();
+            return;
+        }
+        setBattleStarted(true);
+        setCurrentBattleStatus(BattleStatus.selectParty1);
     };
 
-    // If there is only one trainer selected, display a message and a button to go to the Trainer page
     if (selectedTrainers.length < 2) {
         return (
             <div className="page">
@@ -68,6 +90,9 @@ export function Arena() {
             );
         }
 
+        // Scroll to bottom when battle status changes
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+
         return components;
     };
 
@@ -90,13 +115,16 @@ export function Arena() {
                 {renderComponents()}
             </div>
             <div className="flex justify-center mt-8">
-                <button disabled={currentBattleStatus >= BattleStatus.selectParty1}
-                    className="btn bg-blue-500 rounded-md"
+                <button
+                    disabled={battleStarted}
+                    className={`btn ${battleStarted ? 'bg-gray-400' : 'bg-blue-500'} rounded-md`}
                     onClick={handleNextStage}
                 >
-                    Battle
+                    {battleStarted ? 'Battle in Progress' : battleFinished ? 'Battle Again' : 'Start Battle'}
                 </button>
             </div>
+            {/* This is the element we'll scroll to */}
+            <div ref={bottomRef} />
         </div>
     );
 }
