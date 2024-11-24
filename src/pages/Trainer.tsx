@@ -11,6 +11,7 @@ import { TrainersSelectedToBattle } from '../components/trainer/TrainersSelected
 import { TrainerCard } from '../components/trainer/TrainerCard';
 import { PokemonService } from '../services/Pokemon.service';
 import { TrainerWithParty } from '../assets/schemas/trainerWithParty.schema';
+import backgroundMusic from '../assets/audio/opening-part-2.mp3';
 
 type TrainerResponse = z.infer<typeof TrainerResponseSchema>;
 
@@ -20,9 +21,24 @@ export function Trainer() {
     const [isLoading, setIsLoading] = useState(false);
     const [query, setSearchQuery] = useState<string>('');
     const [page, setPage] = useState(1);
+    const [isMuted, setIsMuted] = useState(false);
 
     // State to manage selected trainers
     const [selectedTrainers, setSelectedTrainers] = useState<TrainerWithParty[]>([]);
+
+    useEffect(() => {
+        const audio = new Audio(backgroundMusic);
+        audio.loop = true;
+
+        if (!isMuted) {
+            audio.play().catch(error => console.error("Audio playback failed:", error));
+        }
+
+        return () => {
+            audio.pause();
+            audio.currentTime = 0;
+        };
+    }, [isMuted]);
 
     // Load trainers on mount or when query/page changes
     useEffect(() => {
@@ -105,6 +121,14 @@ export function Trainer() {
                         </div>
                     )}
             <Pagination page={page} totalPages={info?.pages ?? 1} onNext={handleNextPage} onPrev={handlePrevPage} />
+            <div className='fixed bottom-2 right-2'>
+                <button
+                    onClick={() => setIsMuted(!isMuted)}
+                    className="mt-8 bg-white text-black px-4 py-2 rounded-full hover:bg-gray-200 transition duration-300"
+                >
+                    {isMuted ? '🔇 Unmute' : '🔊 Mute'} Music
+                </button>
+            </div>
         </div>
     );
 }

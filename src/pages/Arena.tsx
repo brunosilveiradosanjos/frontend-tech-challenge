@@ -8,6 +8,7 @@ import { TrainerWithParty } from "../assets/schemas/trainerWithParty.schema";
 import { BattleStatus } from "../assets/enums/battleStatus.enum";
 import { PokemonParty } from "../components/arena/PokemonParty";
 import { BattleAnalysis } from "../components/arena/BattleAnalysis";
+import backgroundMusic from '../assets/audio/battle.mp3';
 
 export function Arena() {
     const [selectedTrainers, setSelectedTrainers] = useState<TrainerWithParty[]>([])
@@ -19,6 +20,21 @@ export function Arena() {
     const scrollToBottom = useCallback(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, []);
+    const [isMuted, setIsMuted] = useState(false);
+
+    useEffect(() => {
+        const audio = new Audio(backgroundMusic);
+        audio.loop = true;
+
+        if (!isMuted) {
+            audio.play().catch(error => console.error("Audio playback failed:", error));
+        }
+
+        return () => {
+            audio.pause();
+            audio.currentTime = 0;
+        };
+    }, [isMuted]);
 
     useEffect(() => {
         setSelectedTrainers(LocalStorageService.getSelectedTrainers())
@@ -124,6 +140,14 @@ export function Arena() {
                 </button>
             </div>
             {/* This is the element we'll scroll to */}
+            <div className='fixed bottom-2 right-2'>
+                <button
+                    onClick={() => setIsMuted(!isMuted)}
+                    className="mt-8 bg-white text-black px-4 py-2 rounded-full hover:bg-gray-200 transition duration-300"
+                >
+                    {isMuted ? '🔇 Unmute' : '🔊 Mute'} Music
+                </button>
+            </div>
             <div ref={bottomRef} />
         </div>
     );
