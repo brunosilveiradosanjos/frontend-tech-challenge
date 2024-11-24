@@ -24,7 +24,7 @@ const TypePokemonSchema = z.object({
     pokemon: NamedAPIResourceSchema,
 });
 
-export const TypeSchema = z.object({
+export const PokemonTypeSchema = z.object({
     id: z.number(),
     name: z.string(),
     damage_relations: TypeRelationsSchema,

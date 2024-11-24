@@ -1,4 +1,4 @@
-import { TrainerWithParty } from "../assets/schemas/trainerWithParty.schema";
+import { PokemonWithDamage, TrainerWithParty } from "../assets/schemas/trainerWithParty.schema";
 
 const STORAGE_KEY = 'selectedTrainers';
 
@@ -50,5 +50,16 @@ export const LocalStorageService = {
             // Add trainer, enforcing the 2-trainer limit
             return LocalStorageService.addTrainer(trainer);
         }
+    },
+    // Save the Pokemon party with damage relations for a given trainer
+    savePokemonParty: (trainerId: number, party: PokemonWithDamage[]): void => {
+        const selectedTrainers = LocalStorageService.getSelectedTrainers();
+        const updatedTrainers = selectedTrainers.map((t) => {
+            if (t.id === trainerId) {
+                return { ...t, party };
+            }
+            return t;
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTrainers));
     }
 };

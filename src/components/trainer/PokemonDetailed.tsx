@@ -24,11 +24,9 @@ export function PokemonDetailed({ id }: PokemonDetailedProps) {
                 if (pokemonFromStorage) {
                     // Use the Pokémon from local storage
                     setPokemon(pokemonFromStorage);
-                    console.log("Pokemon found in local storage:", pokemonFromStorage);
                 } else {
                     // Fetch the Pokémon from the API
                     const data = await PokemonService.getPokemonById(id);
-                    console.log("Fetched Pokémon from API:", data);
                     setPokemon(data);
                 }
                 setError(null);

@@ -36,13 +36,13 @@ export function TrainerCard({ trainer, selectedTrainers, onToggleTrainer }: Trai
                             Maximum of 2 trainers selected.
                         </p>
                     )}
-                    <button
-                        onClick={handleAddTrainer}
-                        disabled={isAddDisabled}
-                        className={`w-full py-2 text-lg ${isSelected && !isAddDisabled ? 'bg-red-500 cursor-pointer' : isAddDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'} text-white`}>
-                        {isSelected ? 'Remove' : 'Add'}
-                    </button>
                 </div>
+                <button
+                    onClick={handleAddTrainer}
+                    disabled={isAddDisabled}
+                    className={`btn ${isSelected && !isAddDisabled ? 'bg-red-500' : 'bg-blue-500'}`}>
+                    {isSelected ? 'Remove' : 'Add'}
+                </button>
             </div>
         </div>
     );

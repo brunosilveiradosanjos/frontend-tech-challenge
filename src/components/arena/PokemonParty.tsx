@@ -1,70 +1,88 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { PokemonWithDamage, TrainerWithParty } from "../../assets/schemas/trainerWithParty.schema";
+import { LocalStorageService } from "../../services/LocalStorage.service";
+import { PokemonService } from "../../services/Pokemon.service";
 
-type Pokemon = {
-    name: string;
-    url: string;
-};
+interface PokemonPartyProps {
+    trainerId: number;
+}
 
-type PokemonType = {
-    id: number;
-    name: string;
-    pokemon: { pokemon: Pokemon }[];
-};
-
-type PokemonPartyProps = {
-    onPartySelect: (selectedParty: Pokemon[]) => void;
-};
-
-export function PokemonParty({ onPartySelect }: PokemonPartyProps) {
-    const [pokemonType, setPokemonType] = useState<PokemonType | null>(null);
-    const [selectedPokemon, setSelectedPokemon] = useState<Pokemon[]>([]);
+export function PokemonParty({ trainerId }: PokemonPartyProps) {
+    const [trainer, setTrainer] = useState<TrainerWithParty | null>(null);
+    const [randomPokemon, setRandomPokemon] = useState<PokemonWithDamage[]>([]);
 
     useEffect(() => {
-        // Fetch Pokémon of a specific type (e.g., Fire type with ID 10)
-        axios.get("https://pokeapi.co/api/v2/type/10")
-            .then(response => setPokemonType(response.data))
-            .catch(error => console.error("Error fetching Pokémon type data:", error));
-    }, []);
+        const fetchTrainerAndPokemon = async () => {
+            const trainers = LocalStorageService.getSelectedTrainers();
+            const selectedTrainer = trainers.find(t => t.id === trainerId);
 
-    const handleSelectPokemon = (pokemon: Pokemon) => {
-        if (!selectedPokemon.find(p => p.name === pokemon.name)) {
-            setSelectedPokemon([...selectedPokemon, pokemon]);
-        }
-    };
+            if (selectedTrainer) {
+                setTrainer(selectedTrainer as TrainerWithParty);
 
-    const handleConfirmParty = () => {
-        onPartySelect(selectedPokemon);
-    };
+                // Fetch the trainer's Pokémon first
+                const trainerPokemon = await PokemonService.getPokemonById(trainerId);
 
+                // Fetch 5 additional random Pokemon
+                const pokemonPromises = Array(5).fill(null).map(() => {
+                    const randomId = Math.floor(Math.random() * 898) + 1;
+                    return PokemonService.getPokemonById(randomId);
+                });
+
+                const additionalRandomPokemon = await Promise.all(pokemonPromises);
+                const allPokemon = [trainerPokemon, ...additionalRandomPokemon];
+
+                // Fetch damage relations for each Pokémon
+                const pokemonWithDamage = await Promise.all(allPokemon.map(async (pokemon) => {
+                    const typePromises = pokemon.types.map(t => PokemonService.getPokemonTypeById(parseInt(t.type.url.split('/').slice(-2, -1)[0])));
+                    const types = await Promise.all(typePromises);
+
+                    const damageRelations = types.reduce((acc, type) => {
+                        acc.doubleDamageFrom = [...new Set([...acc.doubleDamageFrom, ...type.damage_relations.double_damage_from.map(t => t.name)])];
+                        acc.halfDamageFrom = [...new Set([...acc.halfDamageFrom, ...type.damage_relations.half_damage_from.map(t => t.name)])];
+                        acc.noDamageFrom = [...new Set([...acc.noDamageFrom, ...type.damage_relations.no_damage_from.map(t => t.name)])];
+                        return acc;
+                    }, { doubleDamageFrom: [] as string[], halfDamageFrom: [] as string[], noDamageFrom: [] as string[] });
+
+                    return { ...pokemon, damageRelations };
+                }));
+
+                // Save the Pokemon with damage relations to localStorage
+                LocalStorageService.savePokemonParty(trainerId, pokemonWithDamage);
+                setRandomPokemon(pokemonWithDamage);
+            }
+        };
+
+        fetchTrainerAndPokemon();
+    }, [trainerId]);
+
+    if (!trainer || randomPokemon.length === 0) {
+        return <div>Loading...</div>;
+    }
     return (
-        <div className="pokemon-party">
-            <h2 className="text-2xl font-bold">Select Pokémon for Your Party</h2>
-            <div className="pokemon-list grid grid-cols-3 gap-4 mt-4">
-                {pokemonType?.pokemon.map(({ pokemon }) => (
-                    <div
-                        key={pokemon.name}
-                        className="pokemon-card p-4 border rounded hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleSelectPokemon(pokemon)}
-                    >
-                        {pokemon.name}
+        <div className="p-4">
+            <h2 className="text-xl font-bold mb-4">{trainer.name}'s Party</h2>
+            <div className="grid grid-cols-3 gap-4">
+                {randomPokemon.map((pokemon, index) => (
+                    <div key={index} className="border p-2 rounded">
+                        <img src={pokemon.sprites.front_default || ""} alt={pokemon.name} className="mx-auto" />
+                        <p className="text-center capitalize font-bold">{pokemon.name}</p>
+                        <p className="text-center text-sm">Type: {pokemon.types.map(t => t.type.name).join(', ')}</p>
+                        {index === 0 && <p className="text-center text-xs text-blue-600">Trainer's Pokémon</p>}
+                        <div className="mt-2 text-xs">
+                            <p className="font-semibold">Damage Relations:</p>
+                            <p className="text-red-500">
+                                Weak against: {pokemon.damageRelations?.doubleDamageFrom.join(', ')}
+                            </p>
+                            <p className="text-green-500">
+                                Resistant to: {pokemon.damageRelations?.halfDamageFrom.join(', ')}
+                            </p>
+                            <p className="text-blue-500">
+                                Immune to: {pokemon.damageRelations?.noDamageFrom.join(', ')}
+                            </p>
+                        </div>
                     </div>
                 ))}
             </div>
-            <div className="selected-party mt-4">
-                <h3 className="text-xl font-bold">Selected Party</h3>
-                <ul>
-                    {selectedPokemon.map(pokemon => (
-                        <li key={pokemon.name}>{pokemon.name}</li>
-                    ))}
-                </ul>
-            </div>
-            <button
-                className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-                onClick={handleConfirmParty}
-            >
-                Confirm Party
-            </button>
         </div>
     );
 }

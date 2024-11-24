@@ -17,4 +17,16 @@ html {
   .page {
     @apply pt-14 pb-4 px-2 flex flex-col items-center justify-center space-y-4;
   }
+
+  .btn {
+    @apply text-white w-full p-2 text-lg duration-300;
+  }
+
+  .btn:hover {
+    @apply cursor-pointer bg-opacity-90;
+  }
+
+  .btn:disabled {
+    @apply bg-gray-400 cursor-not-allowed;
+  }
 }
